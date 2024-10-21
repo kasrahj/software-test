@@ -1,10 +1,15 @@
 package mizdooni.model;
+
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RestaurantTest {
@@ -29,50 +34,48 @@ public class RestaurantTest {
         );
     }
 
-    @Test
-    public void testRestaurantInitialization() {
+    @ParameterizedTest
+    @MethodSource("provideRestaurantInitializationParams")
+    public void testRestaurantInitialization(String name, String type, LocalTime startTime, LocalTime endTime, String description, String link) {
+        restaurant = new Restaurant(name, manager, type, startTime, endTime, description, address, link);
         assertNotNull(restaurant);
-        assertEquals("telepizza", restaurant.getName());
-        assertEquals("Iranian", restaurant.getType());
+        assertEquals(name, restaurant.getName());
+        assertEquals(type, restaurant.getType());
         assertEquals(manager, restaurant.getManager());
-        assertEquals(LocalTime.of(9, 0), restaurant.getStartTime());
-        assertEquals(LocalTime.of(22, 0), restaurant.getEndTime());
+        assertEquals(startTime, restaurant.getStartTime());
+        assertEquals(endTime, restaurant.getEndTime());
         assertEquals(address, restaurant.getAddress());
     }
 
-    @Test
-    public void testAddTable() {
-        Table table = new Table(1, restaurant.getId(), 4);
+    @ParameterizedTest
+    @MethodSource("provideAddTableParams")
+    public void testAddTable(int tableNumber, int seatsNumber) {
+        Table table = new Table(tableNumber, restaurant.getId(), seatsNumber);
         restaurant.addTable(table);
 
         List<Table> tables = restaurant.getTables();
         assertEquals(1, tables.size());
-        assertEquals(1, tables.get(0).getTableNumber());
-        assertEquals(4, tables.get(0).getSeatsNumber());
+        assertEquals(tableNumber, tables.get(0).getTableNumber());
+        assertEquals(seatsNumber, tables.get(0).getSeatsNumber());
     }
 
-    @Test
-    public void testGetTable() {
-        Table table1 = new Table(1, restaurant.getId(), 4);
-        Table table2 = new Table(2, restaurant.getId(), 6);
+    @ParameterizedTest
+    @MethodSource("provideGetTableParams")
+    public void testGetTable(int tableNumber1, int seatsNumber1, int tableNumber2, int seatsNumber2, int retrieveTableNumber) {
+        Table table1 = new Table(tableNumber1, restaurant.getId(), seatsNumber1);
+        Table table2 = new Table(tableNumber2, restaurant.getId(), seatsNumber2);
         restaurant.addTable(table1);
         restaurant.addTable(table2);
 
-        Table retrievedTable = restaurant.getTable(2);
+        Table retrievedTable = restaurant.getTable(retrieveTableNumber);
         assertNotNull(retrievedTable);
-        assertEquals(2, retrievedTable.getTableNumber());
-        assertEquals(6, retrievedTable.getSeatsNumber());
+        assertEquals(retrieveTableNumber, retrievedTable.getTableNumber());
     }
 
-    @Test
-    public void testAddReview() {
-        User client = new User("Amir", "1234", "Amir@gmail.com", address, User.Role.client);
-        Rating rating = new Rating();
-        rating.food = 5;
-        rating.service = 4;
-        rating.ambiance = 4;
-        rating.overall = 5;
-        Review review = new Review(client, rating, "good", LocalDateTime.now());
+    @ParameterizedTest
+    @MethodSource("provideAddReviewParams")
+    public void testAddReview(User client, Rating rating, String comment) {
+        Review review = new Review(client, rating, comment, LocalDateTime.now());
         restaurant.addReview(review);
 
         List<Review> reviews = restaurant.getReviews();
@@ -80,25 +83,13 @@ public class RestaurantTest {
         assertEquals(review, reviews.get(0));
     }
 
-    @Test
-    public void testUpdateReview() {
-        User client = new User("Amir", "1234", "Amir@gmail.com", address, User.Role.client);
-        Rating rating = new Rating();
-        rating.food = 4;
-        rating.service = 3;
-        rating.ambiance = 3;
-        rating.overall = 4;
-
-        Review initialReview = new Review(client, rating, "mid", LocalDateTime.now());
+    @ParameterizedTest
+    @MethodSource("provideUpdateReviewParams")
+    public void testUpdateReview(User client, Rating initialRating, Rating updatedRating, String updatedComment) {
+        Review initialReview = new Review(client, initialRating, "initial comment", LocalDateTime.now());
         restaurant.addReview(initialReview);
 
-        // Update review by the same user
-        Rating updatedRating = new Rating();
-        updatedRating.food = 5;
-        updatedRating.service = 5;
-        updatedRating.ambiance = 5;
-        updatedRating.overall = 5;
-        Review updatedReview = new Review(client, rating, "good", LocalDateTime.now());
+        Review updatedReview = new Review(client, updatedRating, updatedComment, LocalDateTime.now());
         restaurant.addReview(updatedReview);
 
         List<Review> reviews = restaurant.getReviews();
@@ -106,65 +97,39 @@ public class RestaurantTest {
         assertEquals(updatedReview, reviews.get(0));
     }
 
-    @Test
-    public void testGetAverageRating() {
-        User client1 = new User("Ahmad", "0912", "Ahmad@gmail.com", address, User.Role.client);
-        User client2 = new User("Reza", "0901", "Reza@gmail.com", address, User.Role.client);
-        Rating rating1 = new Rating();
-        rating1.food = 4;
-        rating1.service = 4;
-        rating1.ambiance = 4;
-        rating1.overall = 4;
-        Rating rating2 = new Rating();
-        rating2.food = 5;
-        rating2.service = 5;
-        rating2.ambiance = 5;
-        rating2.overall = 5;
-        Review review1 = new Review(client1, rating1, "good", LocalDateTime.now());
-        Review review2 = new Review(client2, rating2, "excellent", LocalDateTime.now());
-        restaurant.addReview(review1);
-        restaurant.addReview(review2);
+    @ParameterizedTest
+    @MethodSource("provideAverageRatingParams")
+    public void testGetAverageRating(List<Review> reviews, Rating expectedAverageRating) {
+        for (Review review : reviews) {
+            restaurant.addReview(review);
+        }
 
         Rating averageRating = restaurant.getAverageRating();
-        assertEquals(4.5, averageRating.food);
-        assertEquals(4.5, averageRating.service);
-        assertEquals(4.5, averageRating.ambiance);
-        assertEquals(4.5, averageRating.overall);
+        assertEquals(expectedAverageRating.food, averageRating.food);
+        assertEquals(expectedAverageRating.service, averageRating.service);
+        assertEquals(expectedAverageRating.ambiance, averageRating.ambiance);
+        assertEquals(expectedAverageRating.overall, averageRating.overall);
     }
 
-    @Test
-    public void testGetStarCount() {
-        User client1 = new User("Ahmad", "0912", "Ahmad@gmail.com", address, User.Role.client);
-        User client2 = new User("Reza", "0901", "Reza@gmail.com", address, User.Role.client);
-        Rating rating1 = new Rating();
-        rating1.food = 4;
-        rating1.service = 4;
-        rating1.ambiance = 4;
-        rating1.overall = 4;
-        Rating rating2 = new Rating();
-        rating2.food = 5;
-        rating2.service = 5;
-        rating2.ambiance = 5;
-        rating2.overall = 5;
-        Review review1 = new Review(client1, rating1, "good", LocalDateTime.now());
-        Review review2 = new Review(client2, rating2, "excellent", LocalDateTime.now());
-        restaurant.addReview(review1);
-        restaurant.addReview(review2);
+    @ParameterizedTest
+    @MethodSource("provideStarCountParams")
+    public void testGetStarCount(List<Review> reviews, int expectedStarCount) {
+        for (Review review : reviews) {
+            restaurant.addReview(review);
+        }
 
         int starCount = restaurant.getStarCount();
-        assertEquals(5, starCount); // Based on average rating logic
+        assertEquals(expectedStarCount, starCount);
     }
 
-    @Test
-    public void testGetMaxSeatsNumber() {
-        Table table1 = new Table(1, restaurant.getId(), 4);
-        Table table2 = new Table(2, restaurant.getId(), 6);
-        Table table3 = new Table(3, restaurant.getId(), 10);
-        restaurant.addTable(table1);
-        restaurant.addTable(table2);
-        restaurant.addTable(table3);
+    @ParameterizedTest
+    @MethodSource("provideMaxSeatsNumberParams")
+    public void testGetMaxSeatsNumber(List<Table> tables, int expectedMaxSeats) {
+        for (Table table : tables) {
+            restaurant.addTable(table);
+        }
 
-        assertEquals(10, restaurant.getMaxSeatsNumber());
+        assertEquals(expectedMaxSeats, restaurant.getMaxSeatsNumber());
     }
 
     @Test
@@ -181,5 +146,80 @@ public class RestaurantTest {
         );
 
         assertNotEquals(restaurant.getId(), anotherRestaurant.getId());
+    }
+
+    // MethodSource providers
+
+    private static Stream<Arguments> provideRestaurantInitializationParams() {
+        return Stream.of(
+                Arguments.of("telepizza", "Iranian", LocalTime.of(9, 0), LocalTime.of(22, 0), "best pizzas", "link1"),
+                Arguments.of("ataavich", "Fast Food", LocalTime.of(10, 0), LocalTime.of(23, 0), "best burgers", "link2")
+        );
+    }
+
+    private static Stream<Arguments> provideAddTableParams() {
+        return Stream.of(
+                Arguments.of(1, 4),
+                Arguments.of(2, 6),
+                Arguments.of(3, 10)
+        );
+    }
+
+    private static Stream<Arguments> provideGetTableParams() {
+        return Stream.of(
+                Arguments.of(1, 4, 2, 6, 1),
+                Arguments.of(1, 4, 2, 6, 2)
+        );
+    }
+
+    private static Stream<Arguments> provideAddReviewParams() {
+        return Stream.of(
+                Arguments.of(new User("Amir", "1234", "Amir@gmail.com", new Address("Iran", "Tehran", "2nd street"), User.Role.client),
+                        new Rating(5, 4, 4, 5), "good"),
+                Arguments.of(new User("Sara", "5678", "Sara@gmail.com", new Address("Iran", "Tehran", "3rd street"), User.Role.client),
+                        new Rating(4, 3, 3, 4), "okay")
+        );
+    }
+
+    private static Stream<Arguments> provideUpdateReviewParams() {
+        return Stream.of(
+                Arguments.of(new User("Amir", "1234", "Amir@gmail.com", new Address("Iran", "Tehran", "2nd street"), User.Role.client),
+                        new Rating(4, 3, 3, 4), new Rating(5, 5, 5, 5), "excellent")
+        );
+    }
+
+    private static Stream<Arguments> provideAverageRatingParams() {
+        return Stream.of(
+                Arguments.of(
+                        List.of(
+                                new Review(new User("Ahmad", "0912", "Ahmad@gmail.com", new Address("Iran", "Tehran", "2nd street"), User.Role.client),
+                                        new Rating(4, 4, 4, 4), "good", LocalDateTime.now()),
+                                new Review(new User("Reza", "0901", "Reza@gmail.com", new Address("Iran", "Tehran", "3rd street"), User.Role.client),
+                                        new Rating(5, 5, 5, 5), "excellent", LocalDateTime.now())
+                        ),
+                        new Rating(4.5, 4.5, 4.5, 4.5)
+                )
+        );
+    }
+
+    private static Stream<Arguments> provideStarCountParams() {
+        return Stream.of(
+                Arguments.of(
+                        List.of(
+                                new Review(new User("Ahmad", "0912", "Ahmad@gmail.com", new Address("Iran", "Tehran", "2nd street"), User.Role.client),
+                                        new Rating(4, 4, 4, 4), "good", LocalDateTime.now()),
+                                new Review(new User("Reza", "0901", "Reza@gmail.com", new Address("Iran", "Tehran", "3rd street"), User.Role.client),
+                                        new Rating(5, 5, 5, 5), "excellent", LocalDateTime.now())
+                        ),
+                        5
+                )
+        );
+    }
+
+    private static Stream<Arguments> provideMaxSeatsNumberParams() {
+        return Stream.of(
+                Arguments.of(List.of(new Table(1, "restaurantId", 4), new Table(2, "restaurantId", 6), new Table(3, "restaurantId", 10)), 10),
+                Arguments.of(List.of(new Table(1, "restaurantId", 2), new Table(2, "restaurantId", 8), new Table(3, "restaurantId", 12)), 12)
+        );
     }
 }
