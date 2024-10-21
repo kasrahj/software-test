@@ -1,3 +1,4 @@
+package mizdooni.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +41,7 @@ public class TableTest {
 
     @Test
     public void testAddReservation() {
-        Reservation reservation = new Reservation(restaurant, LocalDateTime.now().plusDays(1));
+        Reservation reservation = new Reservation(manager,restaurant,table, LocalDateTime.now().plusDays(1));
         table.addReservation(reservation);
 
         List<Reservation> reservations = table.getReservations();
@@ -51,7 +52,7 @@ public class TableTest {
     @Test
     public void testIsReserved() {
         LocalDateTime reservationTime = LocalDateTime.now().plusDays(1);
-        Reservation reservation = new Reservation(restaurant, reservationTime);
+        Reservation reservation = new Reservation(manager,restaurant,table, reservationTime);
         table.addReservation(reservation);
 
         assertTrue(table.isReserved(reservationTime)); // Table should be reserved at the same time

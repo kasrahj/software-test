@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 
-public class Usertest {
+public class UserTest {
     @Autowired
     User user;
     @Autowired
@@ -27,7 +27,7 @@ public class Usertest {
                 "kasra@mail.com", address, User.Role.manager);
 
         restaurant = new Restaurant("kburger",user,"fastfood",
-        LocalTime.parse("08:00"),LocalTime.parse("23:00"),"test", address, "4.5");
+                LocalTime.parse("08:00"),LocalTime.parse("23:00"),"test", address, "4.5");
 
         table = new Table(4, restaurant.getId(), 20);
 

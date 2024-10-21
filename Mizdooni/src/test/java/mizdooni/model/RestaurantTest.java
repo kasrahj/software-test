@@ -1,5 +1,8 @@
+package mizdooni.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,7 +67,12 @@ public class RestaurantTest {
     @Test
     public void testAddReview() {
         User client = new User("Amir", "1234", "Amir@gmail.com", address, User.Role.client);
-        Review review = new Review(client, new Rating(5, 4, 4, 5));
+        Rating rating = new Rating();
+        rating.food = 5;
+        rating.service = 4;
+        rating.ambiance = 4;
+        rating.overall = 5;
+        Review review = new Review(client, rating, "good", LocalDateTime.now());
         restaurant.addReview(review);
 
         List<Review> reviews = restaurant.getReviews();
@@ -75,11 +83,22 @@ public class RestaurantTest {
     @Test
     public void testUpdateReview() {
         User client = new User("Amir", "1234", "Amir@gmail.com", address, User.Role.client);
-        Review initialReview = new Review(client, new Rating(4, 3, 3, 4));
+        Rating rating = new Rating();
+        rating.food = 4;
+        rating.service = 3;
+        rating.ambiance = 3;
+        rating.overall = 4;
+
+        Review initialReview = new Review(client, rating, "mid", LocalDateTime.now());
         restaurant.addReview(initialReview);
 
         // Update review by the same user
-        Review updatedReview = new Review(client, new Rating(5, 5, 5, 5));
+        Rating updatedRating = new Rating();
+        updatedRating.food = 5;
+        updatedRating.service = 5;
+        updatedRating.ambiance = 5;
+        updatedRating.overall = 5;
+        Review updatedReview = new Review(client, rating, "good", LocalDateTime.now());
         restaurant.addReview(updatedReview);
 
         List<Review> reviews = restaurant.getReviews();
@@ -91,8 +110,18 @@ public class RestaurantTest {
     public void testGetAverageRating() {
         User client1 = new User("Ahmad", "0912", "Ahmad@gmail.com", address, User.Role.client);
         User client2 = new User("Reza", "0901", "Reza@gmail.com", address, User.Role.client);
-        Review review1 = new Review(client1, new Rating(4, 4, 4, 4));
-        Review review2 = new Review(client2, new Rating(5, 5, 5, 5));
+        Rating rating1 = new Rating();
+        rating1.food = 4;
+        rating1.service = 4;
+        rating1.ambiance = 4;
+        rating1.overall = 4;
+        Rating rating2 = new Rating();
+        rating2.food = 5;
+        rating2.service = 5;
+        rating2.ambiance = 5;
+        rating2.overall = 5;
+        Review review1 = new Review(client1, rating1, "good", LocalDateTime.now());
+        Review review2 = new Review(client2, rating2, "excellent", LocalDateTime.now());
         restaurant.addReview(review1);
         restaurant.addReview(review2);
 
@@ -107,8 +136,18 @@ public class RestaurantTest {
     public void testGetStarCount() {
         User client1 = new User("Ahmad", "0912", "Ahmad@gmail.com", address, User.Role.client);
         User client2 = new User("Reza", "0901", "Reza@gmail.com", address, User.Role.client);
-        Review review1 = new Review(client1, new Rating(4, 4, 4, 4));
-        Review review2 = new Review(client2, new Rating(5, 5, 5, 5));
+        Rating rating1 = new Rating();
+        rating1.food = 4;
+        rating1.service = 4;
+        rating1.ambiance = 4;
+        rating1.overall = 4;
+        Rating rating2 = new Rating();
+        rating2.food = 5;
+        rating2.service = 5;
+        rating2.ambiance = 5;
+        rating2.overall = 5;
+        Review review1 = new Review(client1, rating1, "good", LocalDateTime.now());
+        Review review2 = new Review(client2, rating2, "excellent", LocalDateTime.now());
         restaurant.addReview(review1);
         restaurant.addReview(review2);
 
