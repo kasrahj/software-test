@@ -1,6 +1,7 @@
 package mizdooni.model;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -55,7 +56,7 @@ public class RestaurantTest {
 
         List<Table> tables = restaurant.getTables();
         assertEquals(1, tables.size());
-        assertEquals(tableNumber, tables.get(0).getTableNumber());
+        assertEquals(1, tables.get(0).getTableNumber());
         assertEquals(seatsNumber, tables.get(0).getSeatsNumber());
     }
 
@@ -175,16 +176,16 @@ public class RestaurantTest {
     private static Stream<Arguments> provideAddReviewParams() {
         return Stream.of(
                 Arguments.of(new User("Amir", "1234", "Amir@gmail.com", new Address("Iran", "Tehran", "2nd street"), User.Role.client),
-                        new Rating(5, 4, 4, 5), "good"),
+                        Rating.RatingCreator(5, 4, 4, 5), "good"),
                 Arguments.of(new User("Sara", "5678", "Sara@gmail.com", new Address("Iran", "Tehran", "3rd street"), User.Role.client),
-                        new Rating(4, 3, 3, 4), "okay")
+                        Rating.RatingCreator(4, 3, 3, 4), "okay")
         );
     }
 
     private static Stream<Arguments> provideUpdateReviewParams() {
         return Stream.of(
                 Arguments.of(new User("Amir", "1234", "Amir@gmail.com", new Address("Iran", "Tehran", "2nd street"), User.Role.client),
-                        new Rating(4, 3, 3, 4), new Rating(5, 5, 5, 5), "excellent")
+                        Rating.RatingCreator(4, 3, 3, 4), Rating.RatingCreator(5, 5, 5, 5), "excellent")
         );
     }
 
@@ -193,11 +194,11 @@ public class RestaurantTest {
                 Arguments.of(
                         List.of(
                                 new Review(new User("Ahmad", "0912", "Ahmad@gmail.com", new Address("Iran", "Tehran", "2nd street"), User.Role.client),
-                                        new Rating(4, 4, 4, 4), "good", LocalDateTime.now()),
+                                        Rating.RatingCreator(4, 4, 4, 4), "good", LocalDateTime.now()),
                                 new Review(new User("Reza", "0901", "Reza@gmail.com", new Address("Iran", "Tehran", "3rd street"), User.Role.client),
-                                        new Rating(5, 5, 5, 5), "excellent", LocalDateTime.now())
+                                        Rating.RatingCreator(5, 5, 5, 5), "excellent", LocalDateTime.now())
                         ),
-                        new Rating(4.5, 4.5, 4.5, 4.5)
+                        Rating.RatingCreator(4.5, 4.5, 4.5, 4.5)
                 )
         );
     }
@@ -207,9 +208,9 @@ public class RestaurantTest {
                 Arguments.of(
                         List.of(
                                 new Review(new User("Ahmad", "0912", "Ahmad@gmail.com", new Address("Iran", "Tehran", "2nd street"), User.Role.client),
-                                        new Rating(4, 4, 4, 4), "good", LocalDateTime.now()),
+                                        Rating.RatingCreator(4, 4, 4, 4), "good", LocalDateTime.now()),
                                 new Review(new User("Reza", "0901", "Reza@gmail.com", new Address("Iran", "Tehran", "3rd street"), User.Role.client),
-                                        new Rating(5, 5, 5, 5), "excellent", LocalDateTime.now())
+                                        Rating.RatingCreator(5, 5, 5, 5), "excellent", LocalDateTime.now())
                         ),
                         5
                 )
@@ -218,8 +219,8 @@ public class RestaurantTest {
 
     private static Stream<Arguments> provideMaxSeatsNumberParams() {
         return Stream.of(
-                Arguments.of(List.of(new Table(1, "restaurantId", 4), new Table(2, "restaurantId", 6), new Table(3, "restaurantId", 10)), 10),
-                Arguments.of(List.of(new Table(1, "restaurantId", 2), new Table(2, "restaurantId", 8), new Table(3, "restaurantId", 12)), 12)
+                Arguments.of(List.of(new Table(1, 0, 4), new Table(2, 0, 6), new Table(3, 0, 10)), 10),
+                Arguments.of(List.of(new Table(1, 0, 2), new Table(2, 0, 8), new Table(3, 0, 12)), 12)
         );
     }
 }

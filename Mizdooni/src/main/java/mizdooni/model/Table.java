@@ -40,4 +40,8 @@ public class Table {
     public List<Reservation> getReservations() {
         return reservations;
     }
+
+    public void setSeatsNumber(int seatsNumber) {
+        this.seatsNumber = seatsNumber;
+    }
 }

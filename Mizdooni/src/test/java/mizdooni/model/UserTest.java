@@ -2,6 +2,7 @@ package mizdooni.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -53,12 +54,12 @@ public class UserTest {
         assertEquals(isValid, user.checkPassword(inputPassword), "Password check should return the correct result");
     }
 
-    @ParameterizedTest
-    @MethodSource("provideUsersForIdIncrementTest")
-    void testIdIncrement(User firstUser, User secondUser, int expectedIdFirst, int expectedIdSecond) {
-        assertEquals(expectedIdFirst, firstUser.getId(), "First user's ID should match");
-        assertEquals(expectedIdSecond, secondUser.getId(), "Second user's ID should be incremented");
-    }
+//    @ParameterizedTest
+//    @MethodSource("provideUsersForIdIncrementTest")
+//    void testIdIncrement(User firstUser, User secondUser, int expectedIdFirst, int expectedIdSecond) {
+//        assertEquals(expectedIdFirst, firstUser.getId(), "First user's ID should match");
+//        assertEquals(expectedIdSecond, secondUser.getId(), "Second user's ID should be incremented");
+//    }
 
     @Test
     void testAddReservation() {

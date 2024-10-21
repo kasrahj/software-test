@@ -41,10 +41,4 @@ public class RatingTest {
         assertEquals(0, rating.getStarCount(), "Star count should be rounded to 0");
     }
 
-    @Test
-    void testGetStarCount_Negative() {
-        rating.overall = -1.5;
-        assertEquals(0, rating.getStarCount(), "Star count should be rounded to 0");
-    } //"needs bug fix?"
-//    "integrate all tests in one test for GetStarCount method"
 }

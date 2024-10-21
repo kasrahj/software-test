@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public enum Role {
         client,
         manager,
