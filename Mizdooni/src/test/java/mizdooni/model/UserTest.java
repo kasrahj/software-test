@@ -1,6 +1,8 @@
 package mizdooni.model;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,6 +42,14 @@ public class UserTest {
         reservation = new Reservation(user, restaurant,
                 table, LocalDateTime.now());
     }
+    @AfterEach
+    void tearDown() {
+        user = null;
+        reservation = null;
+        address = null;
+        restaurant = null;
+        table = null;
+    }
 
     @ParameterizedTest
     @MethodSource("provideUsernamesForTest")
@@ -54,12 +64,12 @@ public class UserTest {
         assertEquals(isValid, user.checkPassword(inputPassword), "Password check should return the correct result");
     }
 
-//    @ParameterizedTest
-//    @MethodSource("provideUsersForIdIncrementTest")
-//    void testIdIncrement(User firstUser, User secondUser, int expectedIdFirst, int expectedIdSecond) {
-//        assertEquals(expectedIdFirst, firstUser.getId(), "First user's ID should match");
-//        assertEquals(expectedIdSecond, secondUser.getId(), "Second user's ID should be incremented");
-//    }
+    @ParameterizedTest
+    @MethodSource("provideUsersForIdIncrementTest")
+    void testIdIncrement(User firstUser, User secondUser, int expectedIdFirst, int expectedIdSecond) {
+        assertEquals(expectedIdFirst, firstUser.getId(), "First user's ID should match");
+        assertEquals(expectedIdSecond, secondUser.getId(), "Second user's ID should be incremented");
+    }
 
     @Test
     void testAddReservation() {

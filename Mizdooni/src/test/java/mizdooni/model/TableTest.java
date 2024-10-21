@@ -1,5 +1,6 @@
 package mizdooni.model;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -36,6 +37,14 @@ public class TableTest {
         table = new Table(1, restaurant.getId(), 4);
     }
 
+    @AfterEach
+    public void tearDown() {
+        table = null;
+        restaurant = null;
+        manager = null;
+        address = null;
+    }
+
     @ParameterizedTest
     @MethodSource("provideTableInitializationParams")
     public void testTableInitialization(int tableNumber, int seatsNumber, int expectedRestaurantId) {
@@ -43,7 +52,7 @@ public class TableTest {
         table.setSeatsNumber(seatsNumber);
         assertEquals(tableNumber, table.getTableNumber());
         assertEquals(seatsNumber, table.getSeatsNumber());
-//        assertEquals(expectedRestaurantId, restaurant.getId());
+        assertEquals(expectedRestaurantId, restaurant.getId());
     }
 
     @ParameterizedTest
@@ -78,8 +87,8 @@ public class TableTest {
     private static Stream<Arguments> provideTableInitializationParams() {
         return Stream.of(
                 Arguments.of(1, 4, 0),   // Table number 1, 4 seats, restaurant id 0
-                Arguments.of(2, 6, 0),   // Table number 2, 6 seats
-                Arguments.of(3, 8, 0)    // Table number 3, 8 seats
+                Arguments.of(2, 6, 1),   // Table number 2, 6 seats
+                Arguments.of(3, 8, 2)    // Table number 3, 8 seats
         );
     }
 
