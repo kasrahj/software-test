@@ -1,5 +1,6 @@
 package mizdooni.model;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,6 +34,13 @@ public class RestaurantTest {
                 address,
                 "link1"
         );
+    }
+
+    @AfterEach
+    public void tearDown() {
+        restaurant = null;
+        manager = null;
+        address = null;
     }
 
     @ParameterizedTest
