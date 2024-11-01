@@ -49,10 +49,10 @@ class ReservationControllerTest {
         int restaurantId = 1;
         int tableNumber = 2;
         LocalDate date = LocalDate.parse("2024-01-15", DATE_FORMATTER);
-        
+
         Restaurant mockRestaurant = new Restaurant();
         mockRestaurant.setId(restaurantId);
-        
+
         List<Reservation> mockReservations = Arrays.asList(
             new Reservation(), new Reservation()
         );
@@ -91,10 +91,10 @@ class ReservationControllerTest {
         int restaurantId = 1;
         int people = 4;
         LocalDate date = LocalDate.parse("2024-01-15", DATE_FORMATTER);
-        
+
         Restaurant mockRestaurant = new Restaurant();
         mockRestaurant.setId(restaurantId);
-        
+
         List<LocalTime> mockAvailableTimes = Arrays.asList(
             LocalTime.of(12, 0),
             LocalTime.of(14, 0)
@@ -118,17 +118,17 @@ class ReservationControllerTest {
         Map<String, String> params = new HashMap<>();
         params.put("people", "4");
         params.put("datetime", "2024-01-15 19:00");
-        
+
         Restaurant mockRestaurant = new Restaurant();
         mockRestaurant.setId(restaurantId);
-        
+
         Reservation mockReservation = new Reservation();
         mockReservation.setRestaurantId(restaurantId);
-        
+
         when(restaurantService.findById(restaurantId)).thenReturn(mockRestaurant);
         when(reservationService.reserveTable(
-            eq(restaurantId), 
-            eq(4), 
+            eq(restaurantId),
+            eq(4),
             eq(LocalDateTime.parse("2024-01-15 19:00", DATETIME_FORMATTER))
         )).thenReturn(mockReservation);
 
@@ -138,8 +138,8 @@ class ReservationControllerTest {
         assertEquals(mockReservation, response.getData());
         verify(restaurantService).findById(restaurantId);
         verify(reservationService).reserveTable(
-            eq(restaurantId), 
-            eq(4), 
+            eq(restaurantId),
+            eq(4),
             eq(LocalDateTime.parse("2024-01-15 19:00", DATETIME_FORMATTER))
         );
     }

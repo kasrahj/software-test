@@ -42,14 +42,14 @@ class ReviewControllerTest {
     void testGetReviews_Successful() {
         int restaurantId = 1;
         int page = 1;
-        
+
         Restaurant mockRestaurant = new Restaurant();
         mockRestaurant.setId(restaurantId);
         mockRestaurant.setName("Test Restaurant");
-        
+
         PagedList<Review> mockReviews = new PagedList<>();
         mockReviews.setList(Arrays.asList(new Review(), new Review()));
-        
+
         when(restaurantService.findById(restaurantId)).thenReturn(mockRestaurant);
         when(reviewService.getReviews(restaurantId, page)).thenReturn(mockReviews);
 

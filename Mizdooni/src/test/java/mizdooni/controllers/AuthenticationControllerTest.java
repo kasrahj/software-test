@@ -1,11 +1,15 @@
 package mizdooni.controllers;
 
+import mizdooni.exceptions.DuplicatedUsernameEmail;
+import mizdooni.exceptions.InvalidEmailFormat;
+import mizdooni.exceptions.InvalidUsernameFormat;
 import mizdooni.model.Address;
 import mizdooni.model.User;
 import mizdooni.response.Response;
 import mizdooni.response.ResponseException;
 import mizdooni.service.ServiceUtils;
 import mizdooni.service.UserService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,6 +22,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static mizdooni.controllers.ControllerUtils.PARAMS_BAD_TYPE;
+import static mizdooni.controllers.ControllerUtils.PARAMS_MISSING;
 
 class AuthenticationControllerTest {
 
@@ -32,16 +38,23 @@ class AuthenticationControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
+//    @AfterEach
+//    void tearDown() {
+//        reset(userService);
+//    }
+
     @Test
     void testGetCurrentUser_UserLoggedIn() {
         User mockUser = new User("testuser", "password", "test@email.com", 
-            new Address("Country", "City", null), User.Role.CUSTOMER);
+            new Address("Country", "City", null), User.Role.client);
         
         when(userService.getCurrentUser()).thenReturn(mockUser);
 
         Response response = authController.user();
         
         assertEquals(HttpStatus.OK, response.getStatus());
+        assertEquals(mockUser, response.getData());
+        assertEquals("current user", response.getMessage());
         assertEquals(mockUser, response.getData());
     }
 
@@ -63,8 +76,8 @@ class AuthenticationControllerTest {
         loginParams.put("username", "testuser");
         loginParams.put("password", "password");
 
-        User mockUser = new User("testuser", "password", "test@email.com", 
-            new Address("Country", "City", null), User.Role.CUSTOMER);
+        User mockUser = new User("testuser", "password", "test@email.com",
+            new Address("Country", "City", null), User.Role.client);
 
         when(userService.login("testuser", "password")).thenReturn(true);
         when(userService.getCurrentUser()).thenReturn(mockUser);
@@ -93,24 +106,37 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    void testSignup_Successful() {
+    void testLogin_MissingParams() {
+        Map<String, String> loginParams = new HashMap<>();
+        loginParams.put("username", "testuser");
+
+        ResponseException exception = assertThrows(ResponseException.class, () -> {
+            authController.login(loginParams);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("parameters missing", exception.getMessage());
+    }
+
+    @Test
+    void testSignup_Successful() throws DuplicatedUsernameEmail, InvalidUsernameFormat, InvalidEmailFormat {
         Map<String, Object> signupParams = new HashMap<>();
         signupParams.put("username", "newuser");
         signupParams.put("password", "password");
         signupParams.put("email", "new@email.com");
-        signupParams.put("role", "CUSTOMER");
+        signupParams.put("role", "client");
 
         Map<String, String> addressParams = new HashMap<>();
         addressParams.put("country", "TestCountry");
         addressParams.put("city", "TestCity");
         signupParams.put("address", addressParams);
 
-        User mockUser = new User("newuser", "password", "new@email.com", 
-            new Address("TestCountry", "TestCity", null), User.Role.CUSTOMER);
+        User mockUser = new User("newuser", "password", "new@email.com",
+            new Address("TestCountry", "TestCity", null), User.Role.client);
 
         doNothing().when(userService).signup(
-            eq("newuser"), eq("password"), eq("new@email.com"), 
-            any(Address.class), eq(User.Role.CUSTOMER)
+            eq("newuser"), eq("password"), eq("new@email.com"),
+            any(Address.class), eq(User.Role.client)
         );
         when(userService.login("newuser", "password")).thenReturn(true);
         when(userService.getCurrentUser()).thenReturn(mockUser);
@@ -120,11 +146,99 @@ class AuthenticationControllerTest {
         assertEquals(HttpStatus.OK, response.getStatus());
         assertEquals(mockUser, response.getData());
         verify(userService).signup(
-            eq("newuser"), eq("password"), eq("new@email.com"), 
-            any(Address.class), eq(User.Role.CUSTOMER)
+            eq("newuser"), eq("password"), eq("new@email.com"),
+            any(Address.class), eq(User.Role.client)
         );
         verify(userService).login("newuser", "password");
     }
+
+    @Test
+    void testSignup_MissingParams() {
+        Map<String, Object> signupParams = new HashMap<>();
+        signupParams.put("username", "newuser");
+        signupParams.put("password", "password");
+        signupParams.put("email", "");
+
+        ResponseException exception = assertThrows(ResponseException.class, () -> {
+            authController.signup(signupParams);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(PARAMS_MISSING, exception.getMessage());
+    };
+
+    @Test
+    void testSignup_InvalidParams() {
+        Map<String, Object> signupParams = new HashMap<>();
+        signupParams.put("username", "newuser");
+        signupParams.put("password", "password");
+        signupParams.put("email", "email.com");
+        signupParams.put("role", "invalidrole");
+
+        Map<String, String> addressParams = new HashMap<>();
+        addressParams.put("country", "TestCountry");
+        addressParams.put("city", "TestCity");
+        signupParams.put("address", addressParams);
+
+        ResponseException exception = assertThrows(ResponseException.class, () -> {
+            authController.signup(signupParams);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(PARAMS_BAD_TYPE, exception.getMessage());
+    }
+
+    @Test
+    void testSignup_EmptyParams() {
+        Map<String, Object> signupParams = new HashMap<>();
+        signupParams.put("username", "");
+        signupParams.put("password", "password");
+        signupParams.put("email", "email.com");
+        signupParams.put("role", "client");
+
+        Map<String, String> addressParams = new HashMap<>();
+        addressParams.put("country", "TestCountry");
+        addressParams.put("city", "TestCity");
+        signupParams.put("address", addressParams);
+
+        ResponseException exception = assertThrows(ResponseException.class, () -> {
+            authController.signup(signupParams);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(PARAMS_MISSING, exception.getMessage());
+    }
+
+    @Test
+    void testSignup_DuplicatedUsernameEmail() throws DuplicatedUsernameEmail, InvalidUsernameFormat, InvalidEmailFormat {
+        Map<String, Object> signupParams = new HashMap<>();
+        signupParams.put("username", "newuser");
+        signupParams.put("password", "password");
+        signupParams.put("email", "new@email.com");
+        signupParams.put("role", "client");
+
+        Map<String, String> addressParams = new HashMap<>();
+        addressParams.put("country", "TestCountry");
+        addressParams.put("city", "TestCity");
+        signupParams.put("address", addressParams);
+
+        User mockUser = new User("newuser", "password", "new@email.com",
+                new Address("TestCountry", "TestCity", null), User.Role.client);
+
+        doThrow(new DuplicatedUsernameEmail()).when(userService).signup(
+                eq("newuser"), eq("password"), eq("new@email.com"),
+                any(Address.class), eq(User.Role.client)
+        );
+
+        when(userService.login("newuser", "password")).thenReturn(true);
+        when(userService.getCurrentUser()).thenReturn(mockUser);
+
+        ResponseException exception = assertThrows(ResponseException.class, () -> {
+            authController.signup(signupParams);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    };
 
     @Test
     void testLogout_Successful() {
@@ -150,10 +264,10 @@ class AuthenticationControllerTest {
 
     @Test
     void testValidateUsername_Available() {
-        when(ServiceUtils.validateUsername("validuser")).thenReturn(true);
-        when(userService.usernameExists("validuser")).thenReturn(false);
+        String username = "validuser";
+        when(userService.usernameExists(username)).thenReturn(false);
 
-        Response response = authController.validateUsername("validuser");
+        Response response = authController.validateUsername(username);
 
         assertEquals(HttpStatus.OK, response.getStatus());
         assertEquals("username is available", response.getMessage());
@@ -161,10 +275,10 @@ class AuthenticationControllerTest {
 
     @Test
     void testValidateUsername_InvalidFormat() {
-        when(ServiceUtils.validateUsername("inv@lid")).thenReturn(false);
+        String username = "inv@lid";
 
         ResponseException exception = assertThrows(ResponseException.class, () -> {
-            authController.validateUsername("inv@lid");
+            authController.validateUsername(username);
         });
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
@@ -173,11 +287,11 @@ class AuthenticationControllerTest {
 
     @Test
     void testValidateUsername_AlreadyExists() {
-        when(ServiceUtils.validateUsername("existinguser")).thenReturn(true);
-        when(userService.usernameExists("existinguser")).thenReturn(true);
+        String username = "existinguser";
+        when(userService.usernameExists(username)).thenReturn(true);
 
         ResponseException exception = assertThrows(ResponseException.class, () -> {
-            authController.validateUsername("existinguser");
+            authController.validateUsername(username);
         });
 
         assertEquals(HttpStatus.CONFLICT, exception.getStatus());
@@ -186,12 +300,37 @@ class AuthenticationControllerTest {
 
     @Test
     void testValidateEmail_Available() {
-        when(ServiceUtils.validateEmail("valid@email.com")).thenReturn(true);
-        when(userService.emailExists("valid@email.com")).thenReturn(false);
+        String email = "valid@email.com";
+        when(userService.emailExists(email)).thenReturn(false);
 
-        Response response = authController.validateEmail("valid@email.com");
+        Response response = authController.validateEmail(email);
 
         assertEquals(HttpStatus.OK, response.getStatus());
         assertEquals("email not registered", response.getMessage());
     }
+
+    @Test
+    void testValidateEmail_InvalidFormat() {
+        String email = "invalidemail.com";
+
+        ResponseException exception = assertThrows(ResponseException.class, () -> {
+            authController.validateEmail(email);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("invalid email format", exception.getMessage());
+    }
+
+    @Test
+    void testValidateEmail_AlreadyExists() {
+        String email = "exists@email.com";
+        when(userService.emailExists(email)).thenReturn(true);
+
+        ResponseException exception = assertThrows(ResponseException.class, () -> {
+            authController.validateEmail(email);
+        });
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
+        assertEquals("email already registered", exception.getMessage());
+    };
 }
