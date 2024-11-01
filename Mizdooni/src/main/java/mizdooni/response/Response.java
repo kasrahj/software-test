@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Getter;
 import mizdooni.response.serializer.HttpStatusSerializer;
 import org.springframework.http.HttpStatus;
 
@@ -15,10 +16,15 @@ public class Response {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
     @JsonSerialize(using = HttpStatusSerializer.class)
+    @Getter
     private HttpStatus status;
+    @Getter
     private boolean success;
+    @Getter
     private String error;
+    @Getter
     private String message;
+    @Getter
     private Object data;
 
     public Response(HttpStatus status, String message, boolean success, String error, Object data) {
