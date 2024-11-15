@@ -14,20 +14,20 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 public class TransactionEngineTest {
-//    private Transaction transaction;
-//    private TransactionEngine transactionEngine;
-//
-//    @BeforeEach
-//    void setUp() {
-//        transaction = new Transaction();
-//        transactionEngine = new TransactionEngine();
-//    }
-//
-//    @AfterEach
-//    void tearDown() {
-//        transaction = null;
-//        transactionEngine = null;
-//    }
+    private Transaction transaction;
+    private TransactionEngine transactionEngine;
+
+    @BeforeEach
+    void setUp() {
+        transaction = new Transaction();
+        transactionEngine = new TransactionEngine();
+    }
+
+    @AfterEach
+    void tearDown() {
+        transaction = null;
+        transactionEngine = null;
+    }
     private static TransactionEngine CreateTransactionEngine(ArrayList<Transaction> transactionHistory)
     {
         TransactionEngine transactionEngine = new TransactionEngine();
@@ -118,7 +118,29 @@ public class TransactionEngineTest {
         assertEquals(expectedFraud, transactionEngine.detectFraudulentTransaction(transaction));
     }
 
+    static Object[][] addTransactionParameters() {
+        ArrayList<Transaction> transactionHistory = new ArrayList<>(List.of(
+                CreateTransactions(1, 1, 10, true),
+                CreateTransactions(2, 1, 5, true),
+                CreateTransactions(3, 1, 12, true)
+        ));
 
+        TransactionEngine transactionEngine = CreateTransactionEngine(transactionHistory);
+
+        return new Object[][] {
+                { transactionEngine, CreateTransactions(1,1,10,true), 0 },
+                { transactionEngine, CreateTransactions(4,1, 22, true),
+                        transactionEngine.detectFraudulentTransaction(CreateTransactions(4,1, 22, true)) },
+                { transactionEngine, CreateTransactions(5,1, 8, true),
+                        transactionEngine.getTransactionPatternAboveThreshold(1000) }
+        };
+    }
+    @ParameterizedTest
+    @MethodSource("addTransactionParameters")
+    void shouldAddTransactionCorrectly(TransactionEngine transactionEngine,
+                                                              Transaction transaction, int expectedFraudScore) {
+        assertEquals(expectedFraudScore, transactionEngine.addTransactionAndDetectFraud(transaction));
+    }
 
 
 
