@@ -42,8 +42,12 @@ class TableController {
 
         int seatsNumber;
         try {
-            seatsNumber = Integer.parseInt(params.get("seatNumber"));
+            seatsNumber = Integer.parseInt(params.get("seatsNumber"));
         } catch (Exception ex) {
+            throw new ResponseException(HttpStatus.BAD_REQUEST, PARAMS_BAD_TYPE);
+        }
+
+        if(seatsNumber <= 0) {
             throw new ResponseException(HttpStatus.BAD_REQUEST, PARAMS_BAD_TYPE);
         }
 
