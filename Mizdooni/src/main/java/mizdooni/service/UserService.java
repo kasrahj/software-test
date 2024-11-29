@@ -9,12 +9,26 @@ import mizdooni.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.InvalidKeyException;
+
 @Service
 public class UserService {
     @Autowired
     private Database db;
     private User currentUser = null;
 
+    public User getManager(int managerId) throws InvalidKeyException {
+        User user = db.users.stream()
+                .filter(u -> u.getRole().equals(User.Role.manager) && u.getId() == managerId)
+                .findFirst()
+                .orElse(null);
+
+        if (user == null) {
+            throw new InvalidKeyException("manager not found");
+        }
+
+        return user;
+    }
     public User getCurrentUser() {
         return currentUser;
     }

@@ -12,6 +12,7 @@ import mizdooni.response.PagedList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.management.openmbean.InvalidKeyException;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class RestaurantService {
         return ServiceUtils.findRestaurant(restaurantId, db.restaurants);
     }
 
-    public PagedList<Restaurant> getRestaurants(int page, RestaurantSearchFilter filter) {
+    public PagedList<Restaurant> getRestaurants(int page, RestaurantSearchFilter filter){
         List<Restaurant> restaurants = db.restaurants;
         if (filter != null) {
             restaurants = filter.filter(restaurants);
