@@ -3,10 +3,12 @@ package mizdooni.controllers;
 import mizdooni.model.Address;
 import mizdooni.model.Restaurant;
 import mizdooni.model.RestaurantSearchFilter;
+import mizdooni.model.User;
 import mizdooni.response.PagedList;
 import mizdooni.response.Response;
 import mizdooni.response.ResponseException;
 import mizdooni.service.RestaurantService;
+import mizdooni.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,9 @@ import static mizdooni.controllers.ControllerUtils.*;
 class RestaurantController {
     @Autowired
     private RestaurantService restaurantService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/restaurants/{restaurantId}")
     public Response getRestaurant(@PathVariable int restaurantId) {
@@ -43,6 +48,8 @@ class RestaurantController {
     @GetMapping("/restaurants/manager/{managerId}")
     public Response getManagerRestaurants(@PathVariable int managerId) {
         try {
+            User manager = userService.getManager(managerId);
+            managerId = manager.getId();
             List<Restaurant> restaurants = restaurantService.getManagerRestaurants(managerId);
             return Response.ok("manager restaurants listed", restaurants);
         } catch (Exception ex) {
