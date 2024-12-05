@@ -228,7 +228,8 @@ public class RestaurantTest {
     private static Stream<Arguments> provideMaxSeatsNumberParams() {
         return Stream.of(
                 Arguments.of(List.of(new Table(1, 0, 4), new Table(2, 0, 6), new Table(3, 0, 10)), 10),
-                Arguments.of(List.of(new Table(1, 0, 2), new Table(2, 0, 8), new Table(3, 0, 12)), 12)
+                Arguments.of(List.of(new Table(1, 0, 2), new Table(2, 0, 8), new Table(3, 0, 12)), 12),
+                Arguments.of(List.of(), 0)
         );
     }
 }
