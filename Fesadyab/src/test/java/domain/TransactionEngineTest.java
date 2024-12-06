@@ -2,13 +2,10 @@ package domain;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -82,7 +79,7 @@ public class TransactionEngineTest {
         return new Object[][] {
                 { emptyTransactionEngine , 6, 0 },
                 { transactionEngine, 50, 0 },
-                { transactionEngine, 14, 14 },
+                { transactionEngine, 13, 14 }, //changed for mutation coverage (threshold = amount)
                 { transactionEngine, 10, 0 },
         };
     }
@@ -109,6 +106,7 @@ public class TransactionEngineTest {
                 { transactionEngine, CreateTransactions(4,1, 12, false), 0 },
                 { transactionEngine, CreateTransactions(4,1, 8, true), 0 },
                 { transactionEngine, CreateTransactions(4,1, 30, true), 10 },
+                { transactionEngine, CreateTransactions(4,1, 20, true), 0 } //changed for mutation coverage (amount = 2 * averageAmount)
         };
     }
     @ParameterizedTest
@@ -141,9 +139,4 @@ public class TransactionEngineTest {
                                                               Transaction transaction, int expectedFraudScore) {
         assertEquals(expectedFraudScore, transactionEngine.addTransactionAndDetectFraud(transaction));
     }
-
-
-
-
-
 }

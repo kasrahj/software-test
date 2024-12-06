@@ -48,4 +48,23 @@ public class TransactionTest {
         assertFalse(transaction.equals(transactionEngine));
     }
 
+    @Test
+    void EqualsShouldReturnFalseWhenObjectIsNull()
+    {
+        assertFalse(transaction.equals(null));
+    }
+
+    @Test
+    void GetterAndSetterShouldReturnCorrectValue()
+    {
+        transaction.setTransactionId(1);
+        transaction.setAccountId(1);
+        transaction.setAmount(10);
+        transaction.setDebit(true);
+        assertTrue(transaction.getTransactionId() == 1);
+        assertTrue(transaction.getAccountId() == 1);
+        assertTrue(transaction.getAmount() == 10);
+        assertTrue(transaction.isDebit());
+    }
+
 }
