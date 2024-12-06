@@ -9,8 +9,12 @@ name: Java CI with Maven and Logs
 
 on:
   push:
+    paths:
+      - 'Fesadyab/**'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'Fesadyab/**'
   workflow_dispatch:
 
 jobs:
@@ -33,25 +37,23 @@ jobs:
     # Step 3: Build project and log output
     - name: Build project with logs
       run: |
-        mvn -B clean package >> workflow.log 2>&1
+        mvn -B clean package -f Fesadyab/pom.xml >> fesadyab_workflow.log 2>&1
 
     # Step 4: Run tests and log output
     - name: Run tests with logs
       run: |
-        mvn -B test >> workflow.log 2>&1
+        mvn -B test -f Fesadyab/pom.xml >> fesadyab_workflow.log 2>&1
 
     # Step 5: Run mutation tests and log output
     - name: Run mutation tests with logs
       run: |
-        mvn -B org.pitest:pitest-maven:mutationCoverage >> workflow.log 2>&1
+        mvn -B org.pitest:pitest-maven:mutationCoverage -f Fesadyab/pom.xml >> fesadyab_workflow.log 2>&1
 
     # Step 6: Upload the log file as an artifact
     - name: Upload Workflow Logs
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: workflow-logs
-        path: workflow.log
+        name: fesadyab_logs
+        path: fesadyab_workflow.log
 
-       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
-    - name: Update dependency graph
-      uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
+
