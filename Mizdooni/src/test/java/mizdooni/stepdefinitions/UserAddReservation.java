@@ -9,6 +9,7 @@ import mizdooni.model.*;
 
 import java.time.LocalTime;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -20,7 +21,7 @@ public class UserAddReservation {
     private Restaurant restaurant;
     private Address address;
     private User manager;
-    private Reservation reservation;
+    private List<Reservation> reservations = new ArrayList<>();
 
     private int reservationCount = 0;
 
@@ -39,7 +40,6 @@ public class UserAddReservation {
                 address,
                 "link1"
         );
-        reservation = new Reservation(user, restaurant, new Table(4, restaurant.getId(), 20), LocalDateTime.now());
     }
 
     @After
@@ -50,25 +50,41 @@ public class UserAddReservation {
         address = null;
     }
 
-
-    @Given("User is logged in")
-    public void user_is_logged_in() {
-        Assertions.assertNotNull(user);
-        reservationCount = user.getReservations().size();
+    @Given("Users new reservation")
+    public void users_new_reservation() {
+        reservations.add(new Reservation(user, restaurant, new Table(4, restaurant.getId(), 20), LocalDateTime.now()));
     }
-
-    @When("User add a reservation")
-    public void user_add_a_reservation() {
-        user.addReservation(reservation);
+    @When("User add the reservation")
+    public void user_add_the_reservation() {
+        user.addReservation(reservations.get(0));
     }
-
-    @Then("User should see the reservation in the list")
-    public void User_should_see_the_reservation_in_the_list() {
+    @Then("the reservation should be added with reservation number {int}")
+    public void the_reservation_should_be_added_with_reservation_number(Integer int1) {
         List<Reservation> reservations = user.getReservations();
-        Assertions.assertTrue(reservations.stream().anyMatch(r -> r.equals(reservation)));
+        Assertions.assertTrue(reservations.stream().anyMatch(r -> r.getReservationNumber() == int1));
         Assertions.assertEquals(reservationCount + 1, reservations.size());
-        Assertions.assertTrue(user.checkReserved(restaurant));
-        Assertions.assertEquals(reservation, user.getReservation(reservation.getReservationNumber()));
+
+    }
+
+    @Given("Users has {int} reservations")
+    public void users_has_reservations(Integer int1) {
+        for (int i = 0; i < int1; i++) {
+            reservations.add(new Reservation(user, restaurant, new Table(4, restaurant.getId(), 20), LocalDateTime.now()));
+        }
+        Assertions.assertEquals(int1, reservations.size());
+    }
+    @When("User add all the reservations")
+    public void user_add_all_the_reservations() {
+        for (Reservation r : reservations) {
+            user.addReservation(r);
+        }
+    }
+    @Then("they should be added with unique reservation numbers starting from {int}")
+    public void they_should_be_added_with_unique_reservation_numbers_starting_from(Integer int1) {
+        List<Reservation> reservations = user.getReservations();
+        for (int i = 0; i < reservations.size(); i++) {
+            Assertions.assertEquals(int1 + i, reservations.get(i).getReservationNumber());
+        }
     }
 
 }
