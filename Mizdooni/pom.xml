@@ -109,9 +109,10 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
-                    <includes>
-                        <include>**/CucumberTestRunner.java</include>
-                    </includes>
+                    <systemPropertyVariables>
+                        <cucumber.plugin>pretty</cucumber.plugin>
+                        <cucumber.features>src/test/resources/features</cucumber.features>
+                    </systemPropertyVariables>
                     <properties>
                         <configurationParameters>
                             cucumber.junit-platform.naming-strategy=long
